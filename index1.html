@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#111827">
+<title>ProNote X — Offline Notepad</title>
+<style>
+:root{--p:#6366f1;--c:#06b6d4;--bg:#f4f7fb;--card:#ffffff;--surface:rgba(255,255,255,.60);--surface2:rgba(255,255,255,.60);--soft:#eef2f7;--ink:#172033;--muted:#718096;--line:#e6eaf1;--danger:#ef4444;--shadow:0 18px 55px rgba(31,41,90,.14)}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif;color:var(--ink);background:radial-gradient(circle at 10% 0,#e7e5ff 0,transparent 28%),radial-gradient(circle at 100% 10%,#d9fbff 0,transparent 28%),var(--bg)}
+button,input,select{font:inherit}button{cursor:pointer;border:0}button:disabled{opacity:.45;cursor:not-allowed}
+.app{min-height:100vh}.topbar{height:68px;position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:0 18px;background:#101526eF;color:#fff;backdrop-filter:blur(18px);box-shadow:0 8px 30px #11182720}
+.brand{display:flex;align-items:center;gap:10px}.logo{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(145deg,#fff,#dbeafe);color:#4f46e5;font-size:21px;box-shadow:inset 2px 2px 5px #fff,inset -3px -3px 7px #aab6d1,0 7px 20px #0005}.brand b{font-size:19px}.brand small{display:block;color:#aab5cf;font-size:10px}
+.top-actions{display:flex;gap:7px}.top-actions button,.primary{padding:10px 13px;border-radius:11px;color:#fff;background:linear-gradient(135deg,var(--p),var(--c));font-weight:700;box-shadow:0 8px 18px #6366f133}.ghost{background:#27304a!important;border:1px solid #ffffff18!important}
+.layout{display:grid;grid-template-columns:235px 1fr;min-height:calc(100vh - 68px)}
+.side{padding:18px;background:var(--surface);border-right:1px solid #fff;backdrop-filter:blur(16px)}.new{width:100%;padding:13px;border-radius:13px;background:linear-gradient(135deg,var(--p),var(--c));color:#fff;font-weight:800;box-shadow:0 10px 22px #6366f130}
+.nav{margin-top:18px}.nav button{display:block;width:100%;text-align:left;padding:12px;border-radius:11px;margin:3px 0;background:transparent;color:#59657b}.nav button.active,.nav button:hover{background:#eef1ff;color:#4f46e5}.side h5{margin:24px 8px 8px;color:#929bad;letter-spacing:1px;text-transform:uppercase}
+main{padding:24px;max-width:1450px;width:100%;margin:auto}.view{display:none}.view.active{display:block}
+.hero{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:20px}.hero h1{margin:0;font-size:28px}.hero p{margin:5px 0;color:var(--muted)}.searchrow{display:flex;gap:10px;margin-bottom:20px}.search,.sort,.field{width:100%;padding:13px 14px;border:1px solid #fff;border-radius:13px;background:var(--surface);outline:0;box-shadow:0 10px 30px #1f295a0c}.sort{max-width:190px}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.card{min-height:190px;border:1px solid #ffffff;border-radius:18px;padding:16px;position:relative;overflow:hidden;box-shadow:0 15px 45px #1f295a12;transition:.22s;display:flex;flex-direction:column}.card:hover{transform:translateY(-5px);box-shadow:0 22px 50px #1f295a22}.card.locked .preview{filter:blur(8px);user-select:none}.card.locked .preview{color:#69758a}.card.locked .ctitle{filter:none}.card:after{content:"";position:absolute;width:120px;height:120px;right:-55px;bottom:-55px;border-radius:50%;background:linear-gradient(135deg,#6366f120,#06b6d420)}.ctitle{font-size:17px;font-weight:850;padding-right:48px;margin-bottom:8px}.preview{white-space:pre-wrap;line-height:1.55;color:#58657b;flex:1;overflow:hidden}.meta{border-top:1px solid #ffffff99;margin-top:12px;padding-top:9px;font-size:10px;color:#7b879b;display:flex;justify-content:space-between;gap:5px}.acts{display:flex;gap:5px;position:relative;z-index:2}.icon{width:31px;height:31px;border-radius:9px;background:var(--surface2);box-shadow:2px 3px 9px #1f293720;color:#566277}.pin{position:absolute;right:11px;top:11px;z-index:2}.empty{text-align:center;padding:80px 15px;color:#8792a7}.empty strong{display:block;font-size:55px}
+.profile,.settings{background:var(--surface);border:1px solid #fff;border-radius:22px;padding:24px;box-shadow:0 20px 60px #1f295a14}.profile-head{display:flex;align-items:center;gap:15px}.avatar{width:72px;height:72px;border-radius:22px;display:grid;place-items:center;font-size:32px;background:linear-gradient(135deg,var(--p),var(--c));color:#fff}.statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:20px}.stat{padding:18px;border-radius:15px;background:#f6f8fc}.stat b{font-size:25px;display:block}
+.settingrow{display:flex;justify-content:space-between;align-items:center;gap:15px;padding:17px 0;border-bottom:1px solid var(--line)}.settingrow:last-child{border:0}.settingrow h3{margin:0 0 4px}.settingrow p{margin:0;color:var(--muted);font-size:13px}.themeBtns{display:flex;gap:8px}.theme{width:45px;height:34px;border-radius:10px;border:2px solid transparent}.theme.sel{border-color:#111827}.tblue{background:linear-gradient(135deg,#6366f1,#06b6d4)}.tpurple{background:linear-gradient(135deg,#7c3aed,#ec4899)}.tgreen{background:linear-gradient(135deg,#059669,#14b8a6)}.tsunset{background:linear-gradient(135deg,#f97316,#ec4899)}.tocean{background:linear-gradient(135deg,#0284c7,#14b8a6)}.trose{background:linear-gradient(135deg,#e11d48,#f43f5e)}.tviolet{background:linear-gradient(135deg,#8b5cf6,#3b82f6)}.tgold{background:linear-gradient(135deg,#ca8a04,#f59e0b)}.tmint{background:linear-gradient(135deg,#10b981,#22c55e)}
+.modal{position:fixed;inset:0;background:#090d1dcc;backdrop-filter:blur(9px);display:none;align-items:center;justify-content:center;padding:10px;z-index:100}.modal.show{display:flex}.box{width:min(1050px,100%);max-height:96vh;overflow:auto;background:var(--surface2);border-radius:22px;box-shadow:0 35px 100px #0007}.mh{height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid var(--line)}.x{width:36px;height:36px;border-radius:10px;background:#eef2f7}.mb{padding:18px}.title{width:100%;font-size:27px;font-weight:850;border:0;outline:0;margin-bottom:12px}.toolbar{display:flex;flex-wrap:wrap;gap:6px;padding:9px;background:#f5f7fb;border:1px solid var(--line);border-radius:13px;margin-bottom:10px}.tool{min-width:36px;padding:8px 10px;border-radius:9px;background:var(--surface2);border:1px solid #e7eaf0;color:#4b5870;box-shadow:0 3px 8px #1f29370d}.tool.on{background:linear-gradient(135deg,var(--p),var(--c));color:#fff}.tool.color{padding:3px;width:40px}.editor{min-height:52vh;padding:18px;border:1px solid #dfe4ed;border-radius:14px;outline:0;line-height:1.75;font-size:16px;background:var(--surface2)}.editor:focus{border-color:#818cf8;box-shadow:0 0 0 3px #6366f120}.noteoptions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.mf{display:flex;justify-content:flex-end;gap:8px;padding:13px 18px;border-top:1px solid var(--line)}.secondary{padding:11px 16px;border-radius:10px;background:#eef2f7}.save{padding:11px 18px;border-radius:10px;background:linear-gradient(135deg,var(--p),var(--c));color:#fff;font-weight:800}
+.lockbox{width:min(420px,100%);background:var(--surface2);border-radius:22px;padding:22px;text-align:center;box-shadow:0 35px 100px #0007;position:relative;z-index:1}
+.auth-feedback{position:fixed;inset:0;display:none;z-index:0;pointer-events:none}
+.auth-feedback.show{display:block}
+.auth-feedback.red{background:rgba(239,68,68,.20)}
+.auth-feedback.green{background:rgba(34,197,94,.30)}
+#authModal.feedback-red .lockbox{box-shadow:0 0 0 2px rgba(239,68,68,.55),0 35px 100px #0007;animation:shake .22s linear}
+#authModal.feedback-green .lockbox{box-shadow:0 0 0 2px rgba(34,197,94,.7),0 35px 100px #0007}
+@keyframes shake{25%{transform:translateX(-5px)}50%{transform:translateX(5px)}75%{transform:translateX(-3px)}}.lockicon{font-size:42px}.pininput{font-size:25px;text-align:center;letter-spacing:7px;padding:13px;border:1px solid var(--line);border-radius:12px;width:100%;outline:0}.pattern{display:grid;grid-template-columns:repeat(3,62px);gap:14px;justify-content:center;margin:18px 0}.dot{width:62px;height:62px;border-radius:50%;background:#eef2ff;border:2px solid #c7d2fe;color:#4f46e5;font-size:20px}.dot.sel{background:#6366f1;color:#fff}.locktabs{display:flex;gap:6px;background:#f1f3f7;padding:5px;border-radius:11px;margin:15px 0}.locktabs button{flex:1;padding:9px;border-radius:8px;background:transparent}.locktabs .active{background:var(--surface2);box-shadow:0 3px 10px #11182714}.hint{font-size:12px;color:var(--muted)}
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,80px);opacity:0;background:#111827;color:#fff;padding:12px 17px;border-radius:11px;z-index:300;transition:.3s}.toast.show{transform:translate(-50%,0);opacity:1}
+@media(min-width:1051px) and (max-width:1400px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}}@media(max-width:750px){.topbar{height:62px;padding:0 10px}.top-actions button span{display:none}.top-actions button{padding:9px}.layout{display:block}.side{position:fixed;bottom:0;left:0;right:0;height:62px;padding:5px 8px;display:flex;z-index:30;border:0;border-top:1px solid #fff}.side .new,.side h5,.side .categories{display:none}.nav{margin:0;display:flex;width:100%;justify-content:space-around}.nav button{margin:0;text-align:center;font-size:11px;padding:9px 5px}.nav button::first-line{font-size:20px}main{padding:14px 12px 80px}.hero h1{font-size:23px}.searchrow{flex-direction:column}.sort{max-width:none}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.card{min-height:175px;padding:13px}.ctitle{font-size:15px}.preview{font-size:12px}.noteoptions,.statgrid{grid-template-columns:1fr}.title{font-size:23px}.editor{min-height:58vh}.toolbar{gap:4px}.tool{padding:7px 8px}.brand small{display:none}.brand b{font-size:16px}}@media(max-width:390px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.card{min-height:160px}}
+
+.theme-sunset{--p:#f97316;--c:#ec4899;--bg:#fff7ed}
+.theme-ocean{--p:#0284c7;--c:#14b8a6;--bg:#effcff}
+.theme-rose{--p:#e11d48;--c:#f43f5e;--bg:#fff1f5}
+.theme-violet{--p:#8b5cf6;--c:#3b82f6;--bg:#f5f3ff}
+.theme-gold{--p:#ca8a04;--c:#f59e0b;--bg:#fffbea}
+.theme-mint{--p:#10b981;--c:#22c55e;--bg:#effff8}
+.theme-purple{--p:#7c3aed;--c:#ec4899;--bg:#faf5ff}
+.theme-green{--p:#059669;--c:#14b8a6;--bg:#f0fdfa}
+
+.theme-sunset{--p:#f97316;--c:#ec4899}
+.theme-ocean{--p:#0284c7;--c:#14b8a6}
+.theme-rose{--p:#e11d48;--c:#f43f5e}
+.theme-violet{--p:#8b5cf6;--c:#3b82f6}
+.theme-gold{--p:#ca8a04;--c:#f59e0b}
+.theme-mint{--p:#10b981;--c:#22c55e}
+
+/* ===== Full Theme Surface System ===== */
+body{background:
+radial-gradient(circle at 10% 0,color-mix(in srgb,var(--c) 13%,transparent) 0,transparent 28%),
+radial-gradient(circle at 100% 10%,color-mix(in srgb,var(--p) 12%,transparent) 0,transparent 28%),
+var(--bg)}
+.side,.profile,.settings,.search,.sort,.field{background:var(--surface)!important;border-color:color-mix(in srgb,var(--p) 12%,transparent)!important;box-shadow:var(--shadow)}
+.card{border-color:color-mix(in srgb,var(--p) 13%,transparent)!important;box-shadow:var(--shadow)}
+.toolbar{background:color-mix(in srgb,var(--p) 6%,var(--surface2))!important;border-color:color-mix(in srgb,var(--p) 13%,transparent)!important}
+.tool,.secondary,.x,.icon{background:color-mix(in srgb,var(--p) 7%,var(--surface2))!important;color:var(--ink)}
+.dot{background:color-mix(in srgb,var(--p) 8%,var(--surface2));border-color:color-mix(in srgb,var(--p) 30%,#fff)}
+.stat{background:color-mix(in srgb,var(--p) 6%,var(--surface2))}
+.mh,.mf,.meta{border-color:color-mix(in srgb,var(--p) 12%,transparent)!important}
+.nav button.active,.nav button:hover{background:color-mix(in srgb,var(--p) 11%,transparent)}
+.locktabs{background:color-mix(in srgb,var(--p) 7%,transparent)}
+.locktabs button.active{background:var(--surface2)}
+.editor{background:color-mix(in srgb,var(--p) 2%,var(--surface2));border-color:color-mix(in srgb,var(--p) 15%,transparent)}
+.lockList button{background:var(--surface2)!important;color:var(--ink)}
+
+.popup{position:fixed;inset:0;background:rgba(8,12,25,.42);backdrop-filter:blur(7px);display:none;align-items:center;justify-content:center;padding:16px;z-index:500}
+.popup.show{display:flex;animation:fadeIn .18s ease}
+.popupbox{width:min(380px,100%);background:var(--surface2);border:1px solid color-mix(in srgb,var(--p) 18%,transparent);border-radius:22px;padding:24px;text-align:center;box-shadow:0 30px 90px #0005;animation:popIn .22s ease}
+.popupicon{font-size:42px;margin-bottom:7px}.popupbox h3{margin:5px 0}.popupbox p{margin:7px 0 18px;color:var(--muted);line-height:1.5}.popupbox button{width:100%;padding:11px;border-radius:11px;background:linear-gradient(135deg,var(--p),var(--c));color:#fff;font-weight:800}
+@keyframes popIn{from{opacity:0;transform:scale(.92) translateY(8px)}to{opacity:1;transform:none}}@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+/* ===== Responsive note actions ===== */
+.top-name{display:inline-block;margin-left:8px;font-size:13px;font-weight:700;color:#dbeafe;max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}
+@media(max-width:750px){
+  .top-name{display:block;margin:2px 0 0;font-size:11px;max-width:130px}
+  .brand{min-width:0}.brand>div:last-child{min-width:0}
+  .card{overflow:visible}
+  .meta{display:flex;flex-direction:column;align-items:stretch;gap:8px}
+  .meta>span:first-child{font-size:9px;line-height:1.25}
+  .acts{width:100%;justify-content:flex-end;gap:7px}
+  .acts .icon{width:38px;height:38px;flex:0 0 38px}
+}
+@media(max-width:430px){
+  .top-actions{gap:4px}
+  .top-actions button{min-width:38px}
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .card{min-width:0;padding:11px;border-radius:16px}
+  .ctitle{padding-right:0;word-break:break-word}
+  .meta>span:first-child{word-break:break-word}
+}
+@media(max-width:360px){
+  .top-actions button{padding:8px 7px}
+  .top-name{max-width:105px}
+  .acts .icon{width:34px;height:34px;flex-basis:34px}
+}
+
+/* ===== Background presets ===== */
+.bg-gradient1{--bg:#eef2ff;--surface:rgba(255,255,255,.60);--surface2:rgba(255,255,255,.60)}
+.bg-gradient2{--bg:#fff1f8;--surface:rgba(255,255,255,.60);--surface2:rgba(255,255,255,.60)}
+.bg-gradient3{--bg:#ecfeff;--surface:rgba(255,255,255,.60);--surface2:rgba(255,255,255,.60)}
+.bg-gradient4{--bg:#f0fdf4;--surface:rgba(255,255,255,.60);--surface2:rgba(255,255,255,.60)}
+.bg-gradient5{--bg:#fff7ed;--surface:rgba(255,255,255,.60);--surface2:rgba(255,255,255,.60)}
+.bg-gradient6{--bg:#f5f3ff;--surface:rgba(255,255,255,.60);--surface2:rgba(255,255,255,.60)}
+.bg-gradient7{--bg:#fefce8;--surface:rgba(255,255,255,.60);--surface2:rgba(255,255,255,.60)}
+.bg-gradient8{--bg:#fdf2f8;--surface:rgba(255,255,255,.60);--surface2:rgba(255,255,255,.60)}
+.bg-gradient9{--bg:#eff6ff;--surface:rgba(255,255,255,.60);--surface2:rgba(255,255,255,.60)}
+.bg-gradient10{--bg:#f0fdfa;--surface:rgba(255,255,255,.60);--surface2:rgba(255,255,255,.60)}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="topbar">
+ <div class="brand"><div class="logo">📝</div><div><b>ProNote X <span id="topProfileName" class="top-name"></span></b><small>100% Offline • Private</small></div></div>
+ <div class="top-actions"><button onclick="newNote()">＋ <span>New</span></button><button class="ghost" onclick="backup()">⬇ <span>Backup</span></button><button class="ghost" onclick="document.getElementById('restore').click()">⬆ <span>Restore</span></button></div>
+</header>
+<div class="layout">
+<aside class="side">
+ <button class="new" onclick="newNote()">＋ Create New Note</button>
+ <nav class="nav">
+  <button class="active" data-view="home" onclick="go('home',this)">🏠<br>Home</button>
+  <button data-view="profile" onclick="go('profile',this)">👤<br>Profile</button>
+  <button data-view="settings" onclick="go('settings',this)">⚙️<br>Setting</button>
+ </nav>
+</aside>
+<main>
+<section id="home" class="view active">
+ <div class="hero"><div><h1>My Notes</h1><p id="homeGreeting">Hello, User</p></div><button class="primary" onclick="newNote()">＋ New Note</button></div>
+ <div class="searchrow"><input id="search" class="search" placeholder="🔍 Search notes..." oninput="render()"><select id="sort" class="sort" onchange="render()"><option value="new">Newest First</option><option value="old">Oldest First</option><option value="az">A → Z</option><option value="za">Z → A</option></select></div>
+ <div id="grid" class="grid"></div><div id="empty" class="empty" style="display:none"><strong>📝</strong><h2>No notes yet</h2><p>Create your first offline note.</p></div>
+</section>
+<section id="profile" class="view"><div class="profile">
+<div class="profile-head"><div class="avatar">👤</div><div><h1 id="profileNameView" style="margin:0">Your Profile</h1><p style="margin:4px 0;color:var(--muted)">Your profile is stored only on this device.</p></div></div>
+<div class="noteoptions" style="margin-top:20px">
+ <div><label class="hint">Your Name</label><input id="profileName" class="field" placeholder="Enter your name"></div>
+ <div><label class="hint">Date of Birth</label><input id="profileDob" class="field" type="date"></div>
+</div>
+<button class="primary" style="margin-top:12px" onclick="saveProfile()">💾 Save Profile</button>
+<div class="statgrid"><div class="stat"><b id="statNotes">0</b><span>Total Notes</span></div><div class="stat"><b id="statLocked">0</b><span>Locked</span></div><div class="stat"><b id="statFav">0</b><span>Favorites</span></div></div>
+</div></section>
+
+<section id="settings" class="view"><div class="settings"><h1 style="margin-top:0">⚙️ Settings</h1>
+ <div class="settingrow"><div><h3>🎨 App Theme</h3><p>Choose your interface style.</p></div><div class="themeBtns" style="display:grid;grid-template-columns:repeat(5,45px);gap:7px">
+<button class="theme tblue" onclick="setTheme('blue')" title="Blue"></button>
+<button class="theme tpurple" onclick="setTheme('purple')" title="Purple"></button>
+<button class="theme tgreen" onclick="setTheme('green')" title="Green"></button>
+<button class="theme tsunset" onclick="setTheme('sunset')" title="Sunset"></button>
+<button class="theme tocean" onclick="setTheme('ocean')" title="Ocean"></button>
+<button class="theme trose" onclick="setTheme('rose')" title="Rose"></button>
+<button class="theme tviolet" onclick="setTheme('violet')" title="Violet"></button>
+<button class="theme tgold" onclick="setTheme('gold')" title="Gold"></button>
+<button class="theme tmint" onclick="setTheme('mint')" title="Mint"></button>
+</div></div>
+ <div class="settingrow"><div><h3>🔐 Note Lock</h3><p>Set PIN or pattern for individual saved notes. Lock/unlock data is stored locally.</p></div><button class="primary" onclick="openLockManager()">Manage</button></div>
+ <div class="settingrow"><div><h3>💾 Backup & Restore</h3><p>Export your notes to a JSON file or restore a previous backup.</p></div><div><button class="secondary" onclick="backup()">Backup</button> <button class="secondary" onclick="document.getElementById('restore').click()">Restore</button></div></div>
+</div></section>
+</main></div></div>
+
+<div id="editorModal" class="modal"><div class="box">
+ <div class="mh"><b id="editorHeading">Create Note</b><button class="x" onclick="closeEditor()">✕</button></div>
+ <div class="mb"><input id="noteTitle" class="title" placeholder="Note title...">
+ <div class="toolbar">
+  <button class="tool" data-c="bold" onclick="fmt('bold',this)"><b>B</b></button><button class="tool" data-c="italic" onclick="fmt('italic',this)"><i>I</i></button><button class="tool" data-c="underline" onclick="fmt('underline',this)"><u>U</u></button>
+  <button class="tool" onclick="fmt('strikeThrough')">S̶</button><button class="tool" onclick="fmt('insertUnorderedList')">• List</button><button class="tool" onclick="fmt('insertOrderedList')">1. List</button>
+  <button class="tool" onclick="fmt('justifyLeft')">☰</button><button class="tool" onclick="fmt('justifyCenter')">≡</button><button class="tool" onclick="fmt('justifyRight')">☷</button>
+  <select class="tool" onchange="fontName(this.value)"><option value="">Font</option><option>Arial</option><option>Georgia</option><option>Verdana</option><option>Courier New</option><option>Trebuchet MS</option></select>
+  <select class="tool" onchange="fontSize(this.value)"><option value="">Size</option><option value="2">Small</option><option value="3">Normal</option><option value="4">Medium</option><option value="5">Large</option><option value="6">Huge</option></select>
+  <input class="tool color" type="color" title="Font Colour" onchange="fore(this.value)"><button class="tool" onclick="hilite()">🖍 Highlight</button><input id="hiColor" class="tool color" type="color" value="#fff59d" title="Highlight Colour" onchange="hilite(this.value)">
+  <button class="tool" onclick="fmt('removeFormat')">Clear</button>
+ </div>
+ <div id="editor" class="editor" contenteditable="true" spellcheck="true"></div>
+ <div class="noteoptions"><select id="noteBg" class="field" style="grid-column:1/-1"><option value="#ffffff">Background: White</option><option value="#fff7ed">Background: Orange</option><option value="#fdf2f8">Background: Pink</option><option value="#ecfdf5">Background: Green</option><option value="#ecfeff">Background: Cyan</option><option value="#eff6ff">Background: Blue</option><option value="#f5f3ff">Background: Purple</option><option value="#fefce8">Background: Yellow</option></select></div>
+ </div><div class="mf"><button class="secondary" onclick="closeEditor()">Cancel</button><button class="save" onclick="saveNote()">💾 Save Note</button></div>
+</div></div>
+
+<div id="lockManager" class="modal"><div class="lockbox"><h2>🔐 Lock a Saved Note</h2><p class="hint">Search and select a note, then choose PIN or Pattern.</p><input id="lockSearch" class="field" placeholder="🔍 Search saved notes..." oninput="lockList()"><div id="lockList" style="text-align:left;max-height:220px;overflow:auto;margin:10px 0"></div><button class="secondary" onclick="closeLockManager()">Close</button></div></div>
+
+<div id="authModal" class="modal"><div id="authFeedback" class="auth-feedback"></div><div class="lockbox"><div class="lockicon">🔒</div><h2 id="authTitle">Locked Note</h2><p class="hint">Enter the note's security code to open it.</p><div class="locktabs"><button id="pinTab" class="active" onclick="authMode('pin')">PIN</button><button id="patTab" onclick="authMode('pattern')">Pattern</button></div><div id="pinArea"><input id="authPin" class="pininput" inputmode="numeric" maxlength="8" type="password" placeholder="••••"></div><div id="patArea" style="display:none"><div id="authPattern" class="pattern"></div><p class="hint">Tap 4–9 dots in the saved order.</p></div><button class="primary" style="width:100%;margin-top:12px" onclick="verifyAuth()">Unlock</button><button class="secondary" style="width:100%;margin-top:8px" onclick="closeAuth()">Cancel</button></div></div>
+
+<div id="lockSetup" class="modal"><div class="lockbox"><h2>🔐 Set Note Lock</h2><p id="setupName" class="hint"></p><div class="locktabs"><button id="setupPinTab" class="active" onclick="setupMode('pin')">PIN</button><button id="setupPatTab" onclick="setupMode('pattern')">Pattern</button></div><div id="setupPinArea"><input id="setupPin" class="pininput" inputmode="numeric" maxlength="8" type="password" placeholder="4–8 digit PIN"><input id="setupPin2" class="pininput" style="margin-top:8px" inputmode="numeric" maxlength="8" type="password" placeholder="Confirm PIN"></div><div id="setupPatArea" style="display:none"><div id="setupPattern" class="pattern"></div><p class="hint">Tap 4–9 dots. Tap again to clear and create a new pattern.</p></div><button class="primary" style="width:100%;margin-top:14px" onclick="saveLock()">Save Lock</button><button class="secondary" style="width:100%;margin-top:8px" onclick="closeSetup()">Cancel</button></div></div>
+
+
+<div id="popup" class="popup"><div class="popupbox"><div id="popupIcon" class="popupicon">ℹ️</div><h3 id="popupTitle">Message</h3><p id="popupText"></p><button onclick="closePopup()">OK</button></div></div>
+<input id="restore" type="file" accept=".json" hidden><div id="toast" class="toast"></div>
+<script>
+let pendingDelete=null;let notes=JSON.parse(localStorage.getItem('pronote_x_notes')||'[]'), editId=null, authId=null, authAction=null, authKind='pin', setupId=null, setupKind='pin', setupPattern=[], authPattern=[];
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+const plain=h=>{let d=document.createElement('div');d.innerHTML=h;return d.innerText||''};
+function persist(){localStorage.setItem('pronote_x_notes',JSON.stringify(notes))}
+function toast(t){$('toast').textContent=t;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),2200)}
+function go(id,el){document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));if(el)el.classList.add('active');if(id==='profile')profile()}
+function newNote(){editId=null;$('editorHeading').textContent='Create Note';$('noteTitle').value='';$('editor').innerHTML='';$('noteBg').value='#ffffff';$('editorModal').classList.add('show');setTimeout(()=>$('noteTitle').focus(),80)}
+function editNote(id){let n=notes.find(x=>x.id===id);if(!n)return;if(n.lock){authId=id;authAction='edit';openAuth();return}openEditor(id)}
+function openEditor(id){let n=notes.find(x=>x.id===id);editId=id;$('editorHeading').textContent='Edit Note';$('noteTitle').value=n.title;$('editor').innerHTML=n.content;$('noteBg').value=n.bg||'#fff';$('editorModal').classList.add('show')}
+function closeEditor(){$('editorModal').classList.remove('show');editId=null}
+function saveNote(){let title=$('noteTitle').value.trim(),content=$('editor').innerHTML.trim();if(!title&&!plain(content).trim()){showPopup('Note is empty','Please write a title or some content before saving.','⚠️');return}let now=new Date().toISOString();if(editId){let n=notes.find(x=>x.id===editId);n.title=title||'Untitled Note';n.content=content;n.bg=$('noteBg').value;n.updated=now}else notes.unshift({id:Date.now(),title:title||'Untitled Note',content,bg:$('noteBg').value,favorite:false,pinned:false,created:now,updated:now,lock:null});persist();render();closeEditor();showPopup('Note Saved','Your note has been saved safely on this device.','✅')}
+function removeNote(id){let n=notes.find(x=>x.id===id);if(!n)return;if(n.lock){authId=id;authAction='delete';openAuth();return}reallyDelete(id)}
+function reallyDelete(id){
+ let n=notes.find(x=>x.id===id);if(!n)return;
+ pendingDelete=id;
+ $('popupIcon').textContent='🗑️';$('popupTitle').textContent='Delete Note?';$('popupText').textContent='Are you sure you want to permanently delete “'+n.title+'”?';
+ $('popup').classList.add('show');
+ $('popup').querySelector('button').textContent='Cancel';
+ $('popup').querySelector('button').onclick=()=>{closePopup();pendingDelete=null};
+ let oldAct=$('popupboxAction'); if(oldAct)oldAct.remove();
+ let b=document.createElement('button');b.id='popupboxAction';b.textContent='Delete Note';b.style.marginTop='8px';b.style.background='linear-gradient(135deg,#ef4444,#f97316)';
+ b.onclick=()=>{notes=notes.filter(x=>x.id!==pendingDelete);persist();
+
+
+render();profile();pendingDelete=null;closePopup();toast('Note deleted')};
+ $('popup').querySelector('.popupbox').appendChild(b);
+}
+function fav(id){let n=notes.find(x=>x.id===id);n.favorite=!n.favorite;persist();render()}
+
+function render(){let q=$('search').value.toLowerCase(),a=[...notes];if(q)a=a.filter(n=>n.title.toLowerCase().includes(q)||plain(n.content).toLowerCase().includes(q));let s=$('sort').value;if(s==='new')a.sort((x,y)=>new Date(y.updated)-new Date(x.updated));if(s==='old')a.sort((x,y)=>new Date(x.updated)-new Date(y.updated));if(s==='az')a.sort((x,y)=>x.title.localeCompare(y.title));if(s==='za')a.sort((x,y)=>y.title.localeCompare(x.title));$('grid').innerHTML='';$('empty').style.display=a.length?'none':'block';a.forEach(n=>{let d=document.createElement('div');d.className='card'+(n.lock?' locked':'');d.style.background=n.bg||'#fff';let p=plain(n.content);p=p.length>180?p.slice(0,180)+'…':p;d.innerHTML='<div class="ctitle">'+(n.lock?'🔒 ':'')+esc(n.title)+'</div><div class="preview">'+esc(p)+'</div><div class="meta"><span>'+new Date(n.updated).toLocaleString()+'</span><span class="acts"><button class="icon" onclick="fav('+n.id+')">'+(n.favorite?'❤️':'♡')+'</button><button class="icon" onclick="editNote('+n.id+')">✏️</button><button class="icon" onclick="removeNote('+n.id+')">🗑️</button></span></div>';d.addEventListener('click',e=>{if(e.target.closest('button'))return;editNote(n.id)});$('grid').appendChild(d)})}
+function profile(){
+ $('statNotes').textContent=notes.length;$('statLocked').textContent=notes.filter(n=>n.lock).length;$('statFav').textContent=notes.filter(n=>n.favorite).length;
+ let p=JSON.parse(localStorage.getItem('pronote_x_profile')||'{}');
+ $('profileName').value=p.name||'';$('profileDob').value=p.dob||'';
+ $('profileNameView').textContent=p.name||'Your Profile';
+ $('homeGreeting').textContent=p.name?'Hello, '+p.name:'Hello, User';$('topProfileName').textContent=p.name||'';
+}
+function saveProfile(){
+ let p={name:$('profileName').value.trim(),dob:$('profileDob').value};
+ localStorage.setItem('pronote_x_profile',JSON.stringify(p));profile();toast('Profile saved');
+}
+function fmt(c,b){document.execCommand(c,false,null);if(b)b.classList.toggle('on',document.queryCommandState(c));$('editor').focus()}
+function fontName(v){if(v){document.execCommand('fontName',false,v);$('editor').focus()}}
+function fontSize(v){if(v){document.execCommand('fontSize',false,v);$('editor').focus()}}
+function fore(v){document.execCommand('foreColor',false,v);$('editor').focus()}
+function hilite(v){document.execCommand('hiliteColor',false,v||$('hiColor').value);$('editor').focus()}
+
+function showPopup(title,msg,icon='ℹ️'){ $('popup').querySelector('button').textContent='OK'; $('popup').querySelector('button').onclick=closePopup;
+ $('popupIcon').textContent=icon;$('popupTitle').textContent=title;$('popupText').textContent=msg;$('popup').classList.add('show')
+}
+function closePopup(){$('popup').classList.remove('show')}
+function backup(){let blob=new Blob([JSON.stringify({version:2,app:'ProNote X',notes},null,2)],{type:'application/json'}),u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='ProNote-X-Backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);toast('Backup created')}
+$('restore').addEventListener('change',e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let x=JSON.parse(r.result);let arr=Array.isArray(x)?x:x.notes;if(!Array.isArray(arr))throw 0;notes=arr;persist();render();profile();toast('Backup restored')}catch{showPopup('Restore failed','This backup file is not a valid ProNote backup.','❌')}};r.readAsText(f);e.target.value=''})
+
+function setTheme(t){document.body.classList.remove('theme-purple','theme-green','theme-sunset','theme-ocean','theme-rose','theme-violet','theme-gold','theme-mint');if(t!=='blue')document.body.classList.add('theme-'+t);localStorage.setItem('pronote_x_theme',t);document.querySelectorAll('.theme').forEach(x=>x.classList.remove('sel'));document.querySelector('.t'+t)?.classList.add('sel')}
+let savedTheme=localStorage.getItem('pronote_x_theme')||'blue';setTheme(savedTheme);
+
+function setBackground(bg){
+ document.body.classList.remove('bg-gradient1','bg-gradient2','bg-gradient3','bg-gradient4','bg-gradient5','bg-gradient6','bg-gradient7','bg-gradient8','bg-gradient9','bg-gradient10');
+ document.body.classList.add('bg-'+bg);
+ localStorage.setItem('pronote_x_background',bg);
+}
+let savedBackground=localStorage.getItem('pronote_x_background')||'gradient1';
+setBackground(savedBackground);
+
+
+function openLockManager(){$('lockManager').classList.add('show');$('lockSearch').value='';lockList()}
+function closeLockManager(){$('lockManager').classList.remove('show')}
+function lockList(){let q=$('lockSearch').value.toLowerCase();let a=notes.filter(n=>n.title.toLowerCase().includes(q));$('lockList').innerHTML=a.length?a.map(n=>'<button style="display:block;width:100%;padding:11px;border:0;border-bottom:1px solid #eee;background:var(--surface2);text-align:left;border-radius:8px" onclick="chooseLock('+n.id+')">'+(n.lock?'🔒':'🔓')+' '+esc(n.title)+'</button>').join(''):'<p class="hint">No matching notes.</p>'}
+function chooseLock(id){setupId=id;setupKind='pin';setupPattern=[];$('setupName').textContent='Selected: '+notes.find(n=>n.id===id).title;$('lockManager').classList.remove('show');$('lockSetup').classList.add('show');setupMode('pin')}
+function setupMode(k){setupKind=k;$('setupPinTab').classList.toggle('active',k==='pin');$('setupPatTab').classList.toggle('active',k==='pattern');$('setupPinArea').style.display=k==='pin'?'block':'none';$('setupPatArea').style.display=k==='pattern'?'block':'none';if(k==='pattern')drawDots('setupPattern',false)}
+function drawDots(id,auth){let box=$(id);box.innerHTML='';for(let i=1;i<=9;i++){let b=document.createElement('button');b.className='dot';b.textContent=i;b.onclick=()=>dotTap(i,auth,b);box.appendChild(b)}}
+function dotTap(i,auth,b){let arr=auth?authPattern:setupPattern;if(arr.includes(i)){if(!auth){setupPattern=[];document.querySelectorAll('#setupPattern .dot').forEach(x=>x.classList.remove('sel'));}return}arr.push(i);b.classList.add('sel')}
+function saveLock(){let n=notes.find(x=>x.id===setupId);if(!n)return;if(setupKind==='pin'){let a=$('setupPin').value,b=$('setupPin2').value;if(!/^\\d{4,8}$/.test(a)||a!==b){showPopup('Invalid PIN','Use 4–8 digits and make both PIN fields match.','⚠️');return}n.lock={type:'pin',value:a}}else{if(setupPattern.length<4){showPopup('Pattern too short','Your pattern must contain at least 4 dots.','⚠️');return}n.lock={type:'pattern',value:setupPattern.join('-')}}persist();closeSetup();render();profile();showPopup('Lock Saved','This note is now protected with your selected PIN or pattern.','🔐')}
+function closeSetup(){$('lockSetup').classList.remove('show');$('setupPin').value='';$('setupPin2').value='';setupPattern=[]}
+function openAuth(){authKind=notes.find(n=>n.id===authId)?.lock?.type||'pin';$('authPin').value='';authPattern=[];$('authModal').classList.add('show');authMode(authKind)}
+function closeAuth(){$('authModal').classList.remove('show');authId=null;authAction=null}
+function authMode(k){authKind=k;$('pinTab').classList.toggle('active',k==='pin');$('patTab').classList.toggle('active',k==='pattern');$('pinArea').style.display=k==='pin'?'block':'none';$('patArea').style.display=k==='pattern'?'block':'none';if(k==='pattern')drawDots('authPattern',true)}
+function authFeedback(ok){
+ const modal=$('authModal'), layer=$('authFeedback');
+ modal.classList.remove('feedback-red','feedback-green'); layer.classList.remove('show','red','green');
+ void modal.offsetWidth;
+ modal.classList.add(ok?'feedback-green':'feedback-red'); layer.classList.add('show',ok?'green':'red');
+ if(!ok){setTimeout(()=>{modal.classList.remove('feedback-red');layer.classList.remove('show','red')},700)}
+}
+function verifyAuth(){
+ let n=notes.find(x=>x.id===authId); if(!n||!n.lock)return;
+ let ok=authKind==='pin'?($('authPin').value===n.lock.value):(authPattern.join('-')===n.lock.value);
+ if(!ok){authFeedback(false);toast(authKind==='pin'?'Wrong PIN':'Wrong pattern');return}
+ authFeedback(true); let id=authId,act=authAction;
+ setTimeout(()=>{closeAuth();if(act==='delete')reallyDelete(id);else openEditor(id)},350)
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeEditor();closeAuth();closeSetup();closeLockManager()}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='n'){e.preventDefault();newNote()}})
+$('editor').addEventListener('keyup',()=>{['bold','italic','underline'].forEach(c=>document.querySelector('[data-c="'+c+'"]')?.classList.toggle('on',document.queryCommandState(c)))});
+render();profile();
+</script>
+</body>
+</html>
